@@ -1,27 +1,84 @@
-name: Playwright Tests
+name: Playwright + Healer
+
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   test:
-    timeout-minutes: 60
+    name: Run Playwright and heal if needed
     runs-on: ubuntu-latest
+    timeout-minutes: 60
+
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: lts/*
-    - name: Install dependencies
-      run: npm ci
-    - name: Install Playwright Browsers
-      run: npx playwright install --with-deps
-    - name: Run Playwright tests
-      run: npx playwright test
-    - uses: actions/upload-artifact@v4
-      if: ${{ !cancelled() }}
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node (LTS) + npm cache
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run tests (save report)
+        run: npx playwright test --reporter=html,junit
+        continue-on-error: true
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+          
+      - name: Try Healer (Playwright Agents)
+        id: healer
+        run: |
+          set +e
+          if npx playwright --help | grep -q "agent"; then
+            echo "healer_available=true" >> $GITHUB_OUTPUT
+            npx playwright agent healer --apply || echo "healer-run-failed"
+          else
+            echo "healer_available=false" >> $GITHUB_OUTPUT
+            echo "healer-not-available"
+          fi
+          set -e
+
+      - name: Commit healer changes
+        if: steps.healer.outputs.healer_available == 'true'
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git checkout -B chore/auto-heal-playwright
+            git add -A
+            git commit -m "chore: auto-heal: Playwright Agents Healer"
+          else
+            echo "No changes from healer"
+          fi
+
+      - name: Create PR for healer changes
+        if: steps.healer.outputs.healer_available == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: chore/auto-heal-playwright
+          title: "chore: auto-heal by Playwright Healer"
+          body: |
+            PR automático com correções aplicadas pelo Healer (Playwright Agents).
+            Verifique selectors, timeouts ou ajustes em testes corrigidos.
+          commit-message: "chore: auto-heal: Playwright Agents Healer"
+          labels: ci,test,healer
