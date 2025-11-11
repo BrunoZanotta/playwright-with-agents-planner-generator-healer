@@ -45,7 +45,8 @@ test.describe('Shopping Cart Tests', () => {
     await expect(cartBadge).toHaveText('2');
     await cartLink.click();
     await expect(page.locator('.cart_item')).toHaveCount(2);
-    await expect(page.getByText('Sauce Labs Bike Light')).toBeVisible();
-    await expect(page.getByText('Sauce Labs Bolt T-Shirt')).toBeVisible();
+  await expect(page.getByText('Sauce Labs Bike Light')).toBeVisible();
+  // Use a specific locator for the item name to avoid strict-mode collisions
+  await expect(page.locator('.inventory_item_name', { hasText: 'Sauce Labs Bolt T-Shirt' })).toBeVisible();
   });
 });

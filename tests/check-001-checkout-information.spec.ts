@@ -37,7 +37,8 @@ test.describe('Checkout Process Tests', () => {
     await expect(page.getByText('Free Pony Express Delivery!')).toBeVisible();
 
     // Verify item details
-    await expect(page.getByText('Sauce Labs Backpack')).toBeVisible();
-    await expect(page.getByText('$29.99')).toBeVisible();
+  await expect(page.getByText('Sauce Labs Backpack')).toBeVisible();
+  // Target the item price element specifically to avoid matching the subtotal label
+  await expect(page.locator('.inventory_item_price', { hasText: '$29.99' })).toBeVisible();
   });
 });
