@@ -1,4 +1,4 @@
-name: Playwright CI + Auto PR
+name: Playwright CI - Staged Execution
 
 on:
   push:
@@ -12,28 +12,175 @@ permissions:
   pull-requests: write
 
 jobs:
-  playwright:
+  # Stage 1: Authentication Tests (CRITICAL - Must Pass First)
+  auth-tests:
+    name: 🔐 Authentication Tests
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: npm
 
-      - run: npm ci
-      - run: npx playwright install --with-deps
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Run tests
-        run: npx playwright test --retries=2 --reporter=html,junit
-        continue-on-error: true
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
 
-      - uses: actions/upload-artifact@v4
+      - name: Run Authentication Tests with Retry
+        run: npm run test:auth:retry -- --project=chromium --reporter=html,junit,list
+
+      - name: Upload auth test results
+        uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: playwright-report
-          path: playwright-report/
+          name: auth-test-results
+          path: |
+            playwright-report/
+            junit.xml
+          retention-days: 30
+
+  # Stage 2: Smoke Tests (Run only if auth passes)
+  smoke-tests:
+    name: 💨 Smoke Tests
+    runs-on: ubuntu-latest
+    needs: auth-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Smoke Tests
+        run: npm run test:smoke -- --project=chromium --retries=2 --reporter=html,junit,list
+
+      - name: Upload smoke test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-test-results
+          path: |
+            playwright-report/
+            junit.xml
+          retention-days: 30
+
+  # Stage 3: Regression Tests (Run only if smoke passes)
+  regression-tests:
+    name: 🧪 Regression Tests
+    runs-on: ubuntu-latest
+    needs: smoke-tests
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Regression Tests
+        run: npm run test:regression -- --project=chromium --retries=2 --reporter=html,junit,list
+
+      - name: Upload regression test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: regression-test-results
+          path: |
+            playwright-report/
+            junit.xml
+          retention-days: 30
+
+  # Stage 4: Full Test Suite on Multiple Browsers (Only if all stages pass)
+  full-test-suite:
+    name: 🌐 Full Test Suite - Multi-Browser
+    runs-on: ubuntu-latest
+    needs: [auth-tests, smoke-tests, regression-tests]
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Full Test Suite on ${{ matrix.browser }}
+        run: npx playwright test --project=${{ matrix.browser }} --retries=2 --reporter=html,junit,list
+
+      - name: Upload test results for ${{ matrix.browser }}
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.browser }}
+          path: |
+            playwright-report/
+            junit.xml
+          retention-days: 30
+
+  # Auto-heal: Check for snapshot changes
+  auto-heal:
+    name: 🔧 Auto-Heal Snapshots
+    runs-on: ubuntu-latest
+    needs: full-test-suite
+    if: failure()
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Update snapshots
+        run: npx playwright test --update-snapshots
+        continue-on-error: true
 
       - name: Check for snapshot changes
         id: diff
@@ -48,12 +195,20 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -B chore/auto-heal-playwright
           git add -A
-          git commit -m "chore: update Playwright snapshots"
+          git commit -m "chore: update Playwright snapshots [auto-heal]"
         continue-on-error: true
 
-      - uses: peter-evans/create-pull-request@v6
+      - name: Create Pull Request
         if: steps.diff.outputs.changed_snapshots != '0'
+        uses: peter-evans/create-pull-request@v6
         with:
           branch: chore/auto-heal-playwright
-          title: "chore: update Playwright snapshots"
-          body: "Snapshots visuais atualizados automaticamente via CI"
+          title: "🔧 chore: auto-heal Playwright snapshots"
+          body: |
+            ## 🤖 Auto-Heal Report
+
+            Snapshots visuais atualizados automaticamente pelo CI.
+
+            **Snapshots alterados:** ${{ steps.diff.outputs.changed_snapshots }}
+
+            Por favor, revise as mudanças antes de fazer merge.

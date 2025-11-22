@@ -1,34 +1,34 @@
-<testsuites id="" name="" tests="8" failures="0" skipped="0" errors="0" time="7.103906000000001">
-<testsuite name="auth-001-successful-login.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="4.033" errors="0">
-<testcase name="Authentication Tests › Successful Login" classname="auth-001-successful-login.spec.ts" time="4.033">
+<testsuites id="" name="" tests="8" failures="0" skipped="0" errors="0" time="5.046981">
+<testsuite name="auth/auth-001-successful-login.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="2.055" errors="0">
+<testcase name="Authentication Tests › Successful Login" classname="auth/auth-001-successful-login.spec.ts" time="2.055">
 </testcase>
 </testsuite>
-<testsuite name="auth-002-failed-login-attempts.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="3.895" errors="0">
-<testcase name="Authentication Tests › Failed Login Attempts" classname="auth-002-failed-login-attempts.spec.ts" time="3.895">
+<testsuite name="auth/auth-002-failed-login-attempts.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="2.196" errors="0">
+<testcase name="Authentication Tests › Failed Login Attempts" classname="auth/auth-002-failed-login-attempts.spec.ts" time="2.196">
 </testcase>
 </testsuite>
-<testsuite name="cart-001-add-products.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="3.431" errors="0">
-<testcase name="Shopping Cart Tests › Add Products to Cart" classname="cart-001-add-products.spec.ts" time="3.431">
+<testsuite name="cart/cart-001-add-products.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="2.198" errors="0">
+<testcase name="Shopping Cart Tests › Add Products to Cart" classname="cart/cart-001-add-products.spec.ts" time="2.198">
 </testcase>
 </testsuite>
-<testsuite name="cart-002-cart-management.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="4.362" errors="0">
-<testcase name="Shopping Cart Tests › Cart Management" classname="cart-002-cart-management.spec.ts" time="4.362">
+<testsuite name="cart/cart-002-cart-management.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="2.314" errors="0">
+<testcase name="Shopping Cart Tests › Cart Management" classname="cart/cart-002-cart-management.spec.ts" time="2.314">
 </testcase>
 </testsuite>
-<testsuite name="check-001-checkout-information.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.673" errors="0">
-<testcase name="Checkout Process Tests › Checkout Information" classname="check-001-checkout-information.spec.ts" time="1.673">
+<testsuite name="checkout/check-001-checkout-information.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.364" errors="0">
+<testcase name="Checkout Process Tests › Checkout Information" classname="checkout/check-001-checkout-information.spec.ts" time="1.364">
 </testcase>
 </testsuite>
-<testsuite name="inv-001-product-listing.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.513" errors="0">
-<testcase name="Product Inventory Tests › Product Listing" classname="inv-001-product-listing.spec.ts" time="1.513">
+<testsuite name="inventory/inv-001-product-listing.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.377" errors="0">
+<testcase name="Product Inventory Tests › Product Listing" classname="inventory/inv-001-product-listing.spec.ts" time="1.377">
 </testcase>
 </testsuite>
-<testsuite name="inv-002-product-sorting.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.363" errors="0">
-<testcase name="Product Inventory Tests › Product Sorting" classname="inv-002-product-sorting.spec.ts" time="1.363">
+<testsuite name="inventory/inv-002-product-sorting.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="1.331" errors="0">
+<testcase name="Product Inventory Tests › Product Sorting" classname="inventory/inv-002-product-sorting.spec.ts" time="1.331">
 </testcase>
 </testsuite>
-<testsuite name="seed.spec.ts" timestamp="2025-11-11T11:53:34.701Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.14" errors="0">
-<testcase name="Test group › seed" classname="seed.spec.ts" time="0.14">
+<testsuite name="seed.spec.ts" timestamp="2025-11-22T22:47:40.369Z" hostname="chromium" tests="1" failures="0" skipped="0" time="0.165" errors="0">
+<testcase name="Test group › seed" classname="seed.spec.ts" time="0.165">
 </testcase>
 </testsuite>
 </testsuites>
